@@ -1,7 +1,6 @@
 // tour.js — Owner: shared
 // The guided demo: four short scenes that show off the car in about 3 minutes, with hints that
 // react to what the driver is doing. N skips to the next scene, Esc ends the tour.
-// (Later the AI coach can speak these hints instead of just showing them.)
 
 const STEPS = [
   {

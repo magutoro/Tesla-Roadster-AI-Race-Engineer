@@ -1,5 +1,5 @@
 // protocol.js — Owner: shared. AGREE WITH YOUR TEAMMATE BEFORE CHANGING THIS FILE.
-// The message formats that the phone, server, game and coach send each other.
+// The message formats that the phone, server, game send each other.
 // Every message is a JSON object with a "type" field.
 
 export const MSG = {
@@ -7,8 +7,7 @@ export const MSG = {
   STATUS: "status", // server -> everyone: { type, phones, games } (how many are connected)
   INPUT: "input", // phone -> game, about 30 times per second (see makeInput)
   MODE: "mode", // phone -> game: { type, mode } (one of DRIVE_MODES)
-  STATE: "state", // game -> phone and coach (see makeState)
-  TIP: "tip", // server -> game: { type, text, lang } (AI coach, later)
+  STATE: "state", // game -> phone (see makeState)
 };
 
 // The three trims from the reveal.
@@ -68,27 +67,6 @@ export function makeState() {
     goalText: "",
   };
 }
-
-// A sample car state, so the coach can be tested without the game running.
-export const SAMPLE_STATE = {
-  type: MSG.STATE,
-  speedKmh: 96,
-  steer: 0.8,
-  fansOn: false,
-  tankPercent: 40,
-  mode: "thrust",
-  airborne: false,
-  altitude: 0,
-  events: ["turn_too_fast"],
-  goalText: "Reach the green zone",
-};
-
-// A fake coach tip, so the game can be tested without the AI.
-export const FAKE_TIP = {
-  type: MSG.TIP,
-  text: "Fans on before that corner. They give grip even at low speed.",
-  lang: "en",
-};
 
 // Turn incoming text into a message object, or null if it isn't valid.
 export function parseMessage(text) {

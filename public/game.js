@@ -12,13 +12,7 @@ import { createEnvironment } from "./environment.js";
 import { TelemetryPanel } from "./telemetry.js";
 import { SoundEngine } from "./sound.js";
 import { Tour } from "./tour.js";
-import { RaceEngineer } from "./coach.js";
-import { RaceSession } from "./race-session.js";
 
-const engineer = new RaceEngineer();
-const raceSession = new RaceSession(function (lap) {
-  window.dispatchEvent(new CustomEvent("race:lap-summary", { detail: lap }));
-}, function (events) { pendingEvents.push(...events); });
 
 // ---------- Renderer, scene, lights ----------
 
@@ -85,7 +79,6 @@ const hud = {
   phoneUrl: document.getElementById("phoneUrl"),
   phoneStatus: document.getElementById("phoneStatus"),
   message: document.getElementById("message"),
-  tip: document.getElementById("tip"),
   loading: document.getElementById("loading"),
 };
 const telemetry = new TelemetryPanel(document.getElementById("telemetry"));
@@ -316,9 +309,7 @@ function handleSocketMessage(msg) {
   } else if (msg.type === MSG.STATUS) {
     phone.count = msg.phones;
     updatePhoneStatus();
-  } else if (msg.type === MSG.TIP) {
-    hud.tip.textContent = msg.text;
-    hud.tip.style.display = "block";
+
   }
 }
 
@@ -360,13 +351,10 @@ function readControls() {
   return input;
 }
 
-// Feed the local engineer even if the phone's WebSocket is disconnected.
+// Send the car state to the phone controller.
 let lastStateSent = 0;
 let pendingEvents = [];
 function sendStateIfDue(now) {
-  const paused = document.hidden || document.body.classList.contains("atTitle");
-  if (level) raceSession.sample(car, lastInput, level.time, paused, pendingEvents);
-  if (pendingEvents.includes("crash") || pendingEvents.includes("flip")) raceSession.analyzer.invalidate("impact");
   if (now - lastStateSent < 1000 / CONFIG.network.stateRateHz) {
     return;
   }
@@ -381,14 +369,8 @@ function sendStateIfDue(now) {
   state.altitude = Math.round(car.altitude * 10) / 10;
   state.events = pendingEvents;
   state.goalText = hud.goalText.textContent;
-  state.telemetry = raceSession.liveContext;
-  const position=car.getPosition();
-  state.stunt={source:"live",trackId:engineer.trackId,capturedAt:Date.now(),
-    x:position.x,y:position.y,z:position.z,upY:car.getUp().y,
-    gas:lastInput.gas,brake:lastInput.brake,steer:lastInput.steer,thrust:lastInput.thrust,
-    lift:lastInput.lift,roll:lastInput.roll,rolling:car.rolling,airborne:car.airborne,goalDone:level?.goalState?.done===true};
-  state.events = pendingEvents;
-  engineer.update(state, lastInput.gas, paused, raceSession.latestSample);
+  // The phone uses orientation and roll state for its tilt-flip gesture.
+  state.stunt={upY:car.getUp().y,rolling:car.rolling};
   if (socket && socket.readyState === WebSocket.OPEN) {
     socket.send(JSON.stringify(state));
   }
@@ -458,16 +440,13 @@ let currentLevelIndex = 0;
 let level = null;
 
 async function loadLevel(index) {
-  engineer.reset(false);
   currentLevelIndex = index;
   const entry = levelList[index];
-  engineer.setTrack(entry.file);
   const data = await fetchLevel(entry.file);
   if (level) {
     removeLevel(level);
   }
   level = buildLevel(data, scene, world, RAPIER);
-  raceSession.configure(level.track, engineer.trackId);
   car.reset(level.spawn);
   snapCamera = true;
   hud.timer.textContent = "";
@@ -480,16 +459,8 @@ async function loadLevel(index) {
   showMessage(data.name, 1.8);
 }
 
-engineer.onDemoRequest=async function(trackId) {
-  const index=levelList.findIndex(entry=>entry.file===trackId);
-  if(index<0) throw new Error("unknown_demo");
-  await loadLevel(index);
-};
-
 // Put the car back at the start, and restart the level's traffic, rival and timers.
 function restartScenario() {
-  engineer.reset();
-  raceSession.reset();
   car.reset();
   if (level) {
     resetLevel(level);
@@ -640,7 +611,7 @@ function updateHud() {
   hud.altitude.textContent = car.altitude.toFixed(1) + " m";
 }
 
-// Turn car events into on-screen messages, and save them for the phone and coach.
+// Turn car events into on-screen messages, and save them for the phone.
 function handleCarEvents() {
   const events = car.takeEvents();
   for (const name of events) {

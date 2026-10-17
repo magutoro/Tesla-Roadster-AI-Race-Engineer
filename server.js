@@ -1,6 +1,6 @@
 // server.js — Phone/server integration
 // Serves the game and phone pages, relays phone input to the game over WebSocket,
-// and (later) proxies AI requests so the API key never reaches the browser.
+// with no external inference or database services.
 //
 //   npm start             -> laptop only (http://localhost:3000)
 //   npm run phone         -> also opens an HTTPS tunnel so an iPhone can connect
@@ -15,9 +15,6 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { WebSocketServer } from "ws";
 import QRCode from "qrcode";
-import { installRaceDataRoutes } from "./server/race-data.js";
-import { installCoachRoutes } from "./server/ai.js";
-import { RaceMemory, installMemoryRoutes } from "./server/memory.js";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
@@ -57,7 +54,6 @@ app.use(express.json({ limit: "100kb" }));
 app.use("/vendor/three", express.static(path.join(rootDir, "node_modules/three")));
 app.use("/vendor/rapier", express.static(path.join(rootDir, "node_modules/@dimforge/rapier3d-compat/dist")));
 app.use("/levels", express.static(path.join(rootDir, "levels")));
-app.use("/fixtures", express.static(path.join(rootDir, "fixtures")));
 app.use(express.static(path.join(rootDir, "public")));
 
 app.get("/", function (req, res) {
@@ -77,11 +73,6 @@ app.get("/api/qr.svg", async function (req, res) {
   res.type("image/svg+xml").send(svg);
 });
 
-// Friend's coach endpoint; scenario generation is a separate milestone.
-const memory = new RaceMemory();
-installMemoryRoutes(app, memory);
-installRaceDataRoutes(app, rootDir);
-installCoachRoutes(app, { memory: memory });
 
 function getPhoneUrl(req) {
   if (tunnelUrl) {
