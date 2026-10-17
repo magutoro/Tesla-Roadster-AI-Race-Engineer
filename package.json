@@ -1,0 +1,29 @@
+{
+  "name": "roadster-sim",
+  "version": "0.1.0",
+  "description": "Browser driving sim of a fan-downforce, thruster-equipped roadster, steered with your phone.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "start": "node server.js",
+    "phone": "node server.js --tunnel",
+    "phone:ngrok": "node server.js --tunnel=ngrok",
+    "memory:check": "node tools/memory.mjs check",
+    "memory:demo": "node tools/memory.mjs demo",
+    "memory:loop-demo": "node tools/coaching-loop-demo.mjs",
+    "race:replay": "node tools/replay-race.mjs",
+    "race:fixture": "node tools/race-fixture.mjs"
+  },
+  "engines": {
+    "node": ">=20.12"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "^0.21.0",
+    "express": "^5.3.0",
+    "neo4j-driver": "^6.2.0",
+    "qrcode": "^1.5.4",
+    "three": "^0.186.1",
+    "ws": "^8.22.0"
+  }
+}

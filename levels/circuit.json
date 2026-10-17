@@ -1,0 +1,185 @@
+{
+  "name": "Figure-8 Test Track",
+  "description": "A figure-8 race track inspired by Suzuka: the track crosses over itself on a bridge. Grass has less grip, so stay on the asphalt (fans help in the fast corners).",
+  "spawn": {
+    "onTrack": true
+  },
+  "ground": {
+    "type": "grass",
+    "size": 2400
+  },
+  "model": null,
+  "props": [
+    {
+      "type": "track",
+      "width": 14,
+      "startAt": [
+        395,
+        20
+      ],
+      "checkpoints": 12,
+      "points": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          70,
+          70,
+          0
+        ],
+        [
+          130,
+          140,
+          0
+        ],
+        [
+          210,
+          200,
+          0
+        ],
+        [
+          300,
+          215,
+          0
+        ],
+        [
+          370,
+          170,
+          0
+        ],
+        [
+          395,
+          80,
+          0
+        ],
+        [
+          395,
+          -60,
+          0
+        ],
+        [
+          385,
+          -150,
+          0
+        ],
+        [
+          340,
+          -210,
+          0
+        ],
+        [
+          260,
+          -215,
+          0
+        ],
+        [
+          200,
+          -180,
+          0
+        ],
+        [
+          160,
+          -195,
+          0
+        ],
+        [
+          110,
+          -150,
+          0.5
+        ],
+        [
+          60,
+          -70,
+          4
+        ],
+        [
+          25,
+          -25,
+          7.5
+        ],
+        [
+          0,
+          0,
+          8
+        ],
+        [
+          -25,
+          25,
+          7.5
+        ],
+        [
+          -60,
+          70,
+          4
+        ],
+        [
+          -110,
+          140,
+          0.5
+        ],
+        [
+          -170,
+          190,
+          0
+        ],
+        [
+          -260,
+          205,
+          0
+        ],
+        [
+          -340,
+          160,
+          0
+        ],
+        [
+          -380,
+          60,
+          0
+        ],
+        [
+          -370,
+          -60,
+          0
+        ],
+        [
+          -320,
+          -150,
+          0
+        ],
+        [
+          -240,
+          -190,
+          0
+        ],
+        [
+          -150,
+          -160,
+          0
+        ],
+        [
+          -70,
+          -75,
+          0
+        ]
+      ],
+      "racingLine": true,
+      "scenery": "countryside"
+    },
+    {
+      "type": "grandstand",
+      "x": 422,
+      "z": 10,
+      "length": 120,
+      "heading": 0
+    }
+  ],
+  "cars": [],
+  "goal": {
+    "type": "lap",
+    "text": "Set a lap time. Drive through every green gate."
+  },
+  "checkpoints": []
+}

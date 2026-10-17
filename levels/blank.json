@@ -1,0 +1,133 @@
+{
+  "name": "Blank Test Area",
+  "description": "Empty space to learn the car.",
+  "spawn": {
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "heading": 0
+  },
+  "ground": {
+    "type": "flat",
+    "size": 1000
+  },
+  "model": null,
+  "props": [
+    {
+      "type": "ramp",
+      "x": 0,
+      "z": 90,
+      "width": 8,
+      "length": 20,
+      "angle": 18
+    },
+    {
+      "type": "ramp",
+      "x": -60,
+      "z": 40,
+      "width": 6,
+      "length": 12,
+      "angle": 12,
+      "heading": 90
+    },
+    {
+      "type": "box",
+      "x": 25,
+      "z": 35,
+      "w": 4,
+      "h": 2,
+      "d": 8,
+      "color": "#8a8f98"
+    },
+    {
+      "type": "box",
+      "x": -25,
+      "z": 140,
+      "w": 10,
+      "h": 1,
+      "d": 10,
+      "color": "#6d737c"
+    },
+    {
+      "type": "wall",
+      "x": 40,
+      "z": 160,
+      "length": 40,
+      "height": 3,
+      "heading": 90
+    },
+    {
+      "type": "cone",
+      "x": -6,
+      "z": 30
+    },
+    {
+      "type": "cone",
+      "x": -6,
+      "z": 42
+    },
+    {
+      "type": "cone",
+      "x": -6,
+      "z": 54
+    },
+    {
+      "type": "cone",
+      "x": 6,
+      "z": 30
+    },
+    {
+      "type": "cone",
+      "x": 6,
+      "z": 42
+    },
+    {
+      "type": "cone",
+      "x": 6,
+      "z": 54
+    },
+    {
+      "type": "cone",
+      "x": 30,
+      "z": 80
+    },
+    {
+      "type": "cone",
+      "x": 36,
+      "z": 92
+    },
+    {
+      "type": "cone",
+      "x": 30,
+      "z": 104
+    },
+    {
+      "type": "cone",
+      "x": 36,
+      "z": 116
+    },
+    {
+      "type": "cone",
+      "x": 30,
+      "z": 128
+    }
+  ],
+  "cars": [
+    {
+      "x": 12,
+      "z": 70,
+      "heading": 0,
+      "behavior": "parked",
+      "kind": "sedan"
+    }
+  ],
+  "goal": {
+    "type": "reach",
+    "x": 0,
+    "z": 220,
+    "radius": 6,
+    "text": "Jump the ramp and reach the green zone"
+  },
+  "checkpoints": [],
+  "decor": "testsite"
+}

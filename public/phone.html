@@ -1,0 +1,186 @@
+<!doctype html>
+<!-- phone.html — Phone/server integration. The phone yoke: hold sideways, tilt to steer, thumbs on the buttons. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0b0d10">
+  <title>Roadster Yoke</title>
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --panel: #171b21;
+      --text: #f2f4f7;
+      --muted: #8a93a0;
+      --gas: #2fd47a;
+      --brake: #ff4d5e;
+      --fans: #34d3ff;
+      --thrust: #ff9a3c;
+    }
+    * {
+      box-sizing: border-box;
+      /* No text selection, callouts, zooming or scrolling: this page is a game controller. */
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
+    }
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", sans-serif;
+      overscroll-behavior: none;
+    }
+
+    #controller {
+      position: fixed;
+      left: 50%; top: 50%;
+      width: 100dvw;
+      height: 100dvh;
+      --view-angle: 0deg;
+      transform: translate(-50%, -50%) rotate(var(--view-angle));
+      display: grid;
+      grid-template-columns: 27% 1fr 27%;
+      gap: 10px;
+      padding: 10px max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+    }
+    .side { display: grid; grid-template-rows: 1fr 1.6fr; gap: 10px; }
+    .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .center { display: flex; flex-direction: column; align-items: center; justify-content: space-between; min-width: 0; }
+
+    .btn {
+      border: none;
+      border-radius: 18px;
+      background: var(--panel);
+      color: var(--text);
+      font: inherit;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      font-size: 5.5vmin;
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.06);
+      transition: transform 0.05s, background 0.05s;
+    }
+    .btn.pressed { transform: scale(0.97); }
+    #gas { color: var(--gas); }
+    #gas.pressed { background: var(--gas); color: #062814; }
+    #brake { color: var(--brake); }
+    #brake.pressed { background: var(--brake); color: #2b0509; }
+    #thrust { color: var(--thrust); font-size: 4.2vmin; }
+    #thrust.pressed { background: var(--thrust); color: #2e1500; }
+    #lift { color: var(--thrust); font-size: 4.2vmin; }
+    #lift.pressed { background: var(--thrust); color: #2e1500; }
+    #roll { color: var(--thrust); font-size: 4.2vmin; }
+    #roll.pressed { background: var(--thrust); color: #2e1500; }
+    /* Buttons this trim doesn't have, or an empty air tank. */
+    .btn.off { color: var(--muted); opacity: 0.35; }
+    #fans { color: var(--muted); font-size: 4.2vmin; }
+    #fans.on { background: rgba(52, 211, 255, 0.18); color: var(--fans); box-shadow: inset 0 0 0 2px var(--fans), 0 0 24px rgba(52,211,255,0.35); }
+
+    #status { font-size: 3.6vmin; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+    #dot { width: 2.4vmin; height: 2.4vmin; border-radius: 50%; background: var(--brake); }
+    #dot.ok { background: var(--gas); }
+
+    #yokeArea { flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 0; }
+    #wheel { height: 100%; max-height: 40vmin; aspect-ratio: 1; }
+    #readout { font-size: 3vmin; color: var(--muted); font-variant-numeric: tabular-nums; }
+    #tilt { color: var(--brake); font-weight: 700; }
+    #tilt.ok { color: var(--gas); }
+    #tiltHelp {
+      display: none; font-size: 3vmin; color: var(--text); background: rgba(255, 77, 94, 0.2);
+      border: 1px solid var(--brake); border-radius: 10px; padding: 1vmin 1.5vmin; text-align: center; line-height: 1.3;
+    }
+    #carInfo { display: flex; align-items: center; gap: 12px; font-size: 4vmin; font-variant-numeric: tabular-nums; }
+    #speed { font-weight: 800; font-size: 7vmin; }
+    #tank { width: 18vmin; height: 1.6vmin; border-radius: 1vmin; background: rgba(255,255,255,0.1); overflow: hidden; }
+    #tankFill { height: 100%; width: 100%; background: var(--thrust); }
+
+    .small-row { display: flex; gap: 8px; width: 100%; }
+    .btn.small { flex: 1; font-size: 3.2vmin; padding: 2.2vmin 0; border-radius: 12px; }
+    #mode { color: var(--thrust); flex: 1.7; }
+    #flipView { flex: none; font-size: 3vmin; padding: 0.8vmin 1.4vmin; margin-top: 1vmin; }
+
+    /* A red flash around the edge on crashes and hard landings. */
+    #flash { position: fixed; inset: 0; pointer-events: none; box-shadow: inset 0 0 0 0 rgba(255, 77, 94, 0); transition: box-shadow 0.3s; }
+    #flash.on { box-shadow: inset 0 0 0 1.5vmin rgba(255, 77, 94, 0.9); transition: none; }
+
+    .overlay {
+      position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 16px; padding: 24px; text-align: center; background: var(--bg); z-index: 10;
+    }
+    .overlay h1 { margin: 0; font-size: 28px; }
+    .overlay p { margin: 0; color: var(--muted); max-width: 520px; line-height: 1.4; }
+    #startButton {
+      font: inherit; font-size: 22px; font-weight: 800; padding: 18px 40px; border-radius: 16px; border: none;
+      background: var(--text); color: var(--bg);
+    }
+    #startError { color: var(--brake); }
+    #controller.flipped { --view-angle: 180deg; }
+    @media (orientation: portrait) {
+      #controller { width: 100dvh; height: 100dvw; --view-angle: 90deg; }
+      #controller.flipped { --view-angle: 270deg; }
+    }
+  </style>
+</head>
+<body>
+  <div id="controller">
+    <div class="side">
+      <div class="pair">
+        <button id="fans" class="btn">FANS</button>
+        <button id="lift" class="btn">LIFT</button>
+      </div>
+      <button id="brake" class="btn">BRAKE</button>
+    </div>
+
+    <div class="center">
+      <div id="status"><span id="dot"></span><span id="statusText">Connecting...</span></div>
+      <button id="flipView" class="btn small">FLIP VIEW</button>
+      <!-- A yoke like the real car's. If tilt doesn't work, drag it left/right to steer. -->
+      <div id="yokeArea">
+        <svg id="wheel" viewBox="-50 -50 100 100" aria-hidden="true">
+          <rect x="-46" y="-26" width="13" height="46" rx="6.5" fill="#f2f4f7"></rect>
+          <rect x="33" y="-26" width="13" height="46" rx="6.5" fill="#f2f4f7"></rect>
+          <rect x="-40" y="10" width="80" height="9" rx="4.5" fill="#f2f4f7"></rect>
+          <rect x="-36" y="-3" width="72" height="6" rx="3" fill="#9aa3b0"></rect>
+          <circle cx="0" cy="2" r="12" fill="#171b21" stroke="#f2f4f7" stroke-width="3"></circle>
+          <rect x="-3" y="-14" width="6" height="8" rx="2" fill="#ff4d5e"></rect>
+        </svg>
+      </div>
+      <div id="tiltHelp">Tilt isn't reaching the page. Drag the yoke to steer.<br>To fix: reload, tap Start, then tap Allow.</div>
+      <div id="readout"><span id="tilt">tilt: waiting</span> &middot; steer 0&deg;</div>
+      <div id="rollHint" role="status" style="font-size:2vmin;color:var(--thrust)">In Rocket: airborne tilt 45° left/right to barrel roll, then center.</div>
+      <div id="carInfo"><span id="speed">0</span><span>km/h</span><div id="tank"><div id="tankFill"></div></div></div>
+      <div class="small-row">
+        <button id="mode" class="btn small">MODE &middot; ROCKET</button>
+        <button id="center" class="btn small">CENTER</button>
+        <button id="reset" class="btn small">RESET</button>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="pair">
+        <button id="roll" class="btn">ROLL</button>
+        <button id="thrust" class="btn">BOOST</button>
+      </div>
+      <button id="gas" class="btn">GAS</button>
+    </div>
+  </div>
+
+  <div id="flash"></div>
+
+  <div id="startScreen" class="overlay">
+    <h1>Roadster Yoke</h1>
+    <p>Turn on Portrait Orientation Lock to stop the screen rotating while steering. Tap Start, then hold your phone sideways and tap CENTER. Tilt left/right to steer; motion sensing still works with the screen locked. In Rocket mode, tilt past 45° while airborne or upside down on the curl to barrel roll. Return near center before another flip. Use FLIP VIEW if the controls look upside down.</p>
+    <button id="startButton">Tap to start</button>
+    <p id="startError"></p>
+  </div>
+
+  <script type="module" src="/phone.js"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Race engineer practice</title>
+  <link rel="stylesheet" href="/coach.css">
+  <style>
+    :root { --text: #f2f4f7; --muted: #aab6c6; }
+    body { background: #101720; color: var(--text); font: 16px system-ui; margin: 36px auto; padding: 0 24px; max-width: 750px; }
+    p { line-height: 1.5; } a { color: #65d7fa; }
+    button { padding: 12px; margin: 4px; cursor: pointer; }
+    pre { background: #1c2735; padding: 20px; overflow: auto; border-radius: 12px; }
+    #engineer { position: static; transform: none; width: auto; background: #1c2735; margin-top: 24px; border-radius: 12px; max-height: none; overflow: visible; }
+  </style>
+</head>
+<body>
+  <h1>Race engineer practice</h1>
+  <p>Sample data for testing the coach without driving. These are simulated inputs, not measured laps. <a href="/game.html">Open the simulator</a>.</p>
+  <div id="samples">
+    <button data-sample="straight">Straight</button>
+    <button data-sample="corner">Fast corner, fans off</button>
+    <button data-sample="lowAir">Low air</button>
+    <button id="lap">Send example lap summary</button>
+  </div>
+  <button id="local-goal-demo">Load local goal examples · no AI credits</button>
+  <p>For goal coaching: load local examples, then type “I want to work on corner speed at T4”. These examples include measured braking-time offsets.</p>
+  <button id="memory-demo">Load 3 example laps into Neo4j · no AI credits</button>
+  <button id="memory-next">Send next comparable example lap · no AI credits</button>
+  <p>Memory loop: turn engineer on → load examples → click Measured focus → send next example lap. Leave automatic tips off.</p>
+  <p id="memory-result" role="status"></p>
+  <details><summary>Inspect stored example data</summary><pre id="memory-debug"></pre></details>
+  <details><summary>Inspect sample driving state</summary><pre id="state"></pre></details>
+  <script type="module">
+    import { RaceEngineer } from "./coach.js";
+    import { LATE_BRAKING_DEMO_LAPS } from "./shared/memory-demo.js";
+    import { SAMPLE_STATE } from "./shared/protocol.js";
+    const engineer = new RaceEngineer({ dataset: "demo" });
+    engineer.setTrack("suzuka.json");
+    document.getElementById("memory-demo").onclick = async function () {
+      const result = await engineer.loadDemoMemory();
+      document.getElementById("memory-debug").textContent = JSON.stringify(result || null, null, 2);
+      document.getElementById("memory-result").textContent = result?.status === "connected" ?
+        "Example laps loaded. Click Measured focus in the engineer panel, then send the next example lap." :
+        "Turn the engineer on and check the Neo4j connection. Automatic tips can stay off.";
+    };
+    document.getElementById("memory-next").onclick = async function () {
+      const result = await engineer.loadDemoNextLap();
+      document.getElementById("memory-debug").textContent = JSON.stringify(result || null, null, 2);
+      document.getElementById("memory-result").textContent = result?.data?.outcome ?
+        "Next attempt evaluated. Read the comparison in the engineer panel." :
+        "No eligible outcome yet. Show a measured focus before sending the next example lap.";
+      if (result?.data?.stored) document.getElementById("memory-next").disabled = true;
+    };
+    document.getElementById("local-goal-demo").onclick = function () {
+      if (!engineer.enabled) {
+        document.getElementById("memory-result").textContent = "Turn the engineer on first.";
+        return;
+      }
+      for (const lap of LATE_BRAKING_DEMO_LAPS) engineer.addLapSummary(lap);
+      document.getElementById("memory-result").textContent = "Three labeled local examples loaded. Ask to work on corner speed at T4. Automatic paid tips can stay off.";
+    };
+    const samples = {
+      straight: { ...SAMPLE_STATE, steer: 0, fansOn: true, events: [] },
+      corner: { ...SAMPLE_STATE },
+      lowAir: { ...SAMPLE_STATE, steer: 0, tankPercent: 8, events: ["tank_empty"] },
+    };
+    let state = samples.corner;
+    for (const button of document.querySelectorAll("[data-sample]")) {
+      button.onclick = function () {
+        engineer.reset();
+        state = samples[button.dataset.sample];
+      };
+    }
+    document.getElementById("lap").onclick = function () {
+      window.dispatchEvent(new CustomEvent("race:lap-summary", {
+        detail: "EXAMPLE DATA — lap 3, T4: braked 12 m earlier than best, minimum speed 6 km/h slower, lost 0.35 s."
+      }));
+    };
+    setInterval(function () {
+      document.getElementById("state").textContent = JSON.stringify(state, null, 2);
+      engineer.update(state, 0.7, document.hidden);
+    }, 200);
+  </script>
+</body>
+</html>

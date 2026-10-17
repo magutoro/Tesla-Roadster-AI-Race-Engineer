@@ -1,0 +1,30 @@
+[
+  {
+    "file": "blank",
+    "name": "Blank Test Area"
+  },
+  {
+    "file": "reveal-curl",
+    "name": "Reveal Curl (upside down + barrel roll)"
+  },
+  {
+    "file": "tesla-event",
+    "name": "Reveal Jump (over the lineup)"
+  },
+  {
+    "file": "suzuka",
+    "name": "Suzuka Circuit (real layout)"
+  },
+  {
+    "file": "circuit",
+    "name": "Figure-8 Test Track"
+  },
+  {
+    "file": "warehouse-parking",
+    "name": "Warehouse Store Parking (Costco-style)"
+  },
+  {
+    "file": "expressway",
+    "name": "Rush-Hour Expressway"
+  }
+]

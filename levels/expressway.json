@@ -1,0 +1,26 @@
+{
+  "name": "Rush-Hour Expressway",
+  "description": "A busy 3-lane expressway (drives on the left, like Japan). An accident at 1.3 km blocks every lane. Reach your exit in time.",
+  "spawn": { "x": 6.3, "y": 0, "z": -25, "heading": 0 },
+  "ground": { "type": "grass", "size": 5200 },
+  "model": null,
+  "props": [
+    {
+      "type": "highway",
+      "z": -50,
+      "length": 2400,
+      "lanesEachWay": 3,
+      "laneWidth": 3.6,
+      "seed": 3,
+      "traffic": {
+        "count": 50,
+        "oncoming": 20,
+        "speedsKmh": [120, 100, 80],
+        "jam": { "z": 1300, "length": 160 }
+      }
+    }
+  ],
+  "cars": [],
+  "goal": { "type": "reach", "x": 6.3, "z": 2270, "radius": 12, "timeLimit": 80, "text": "Reach the exit 2.3 km ahead in 80 s. The accident blocks every lane: fly over it with LIFT." },
+  "checkpoints": []
+}

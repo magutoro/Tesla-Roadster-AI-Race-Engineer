@@ -1,0 +1,26 @@
+{
+  "name": "Warehouse Store Parking (Costco-style)",
+  "description": "Saturday at the warehouse club. The lot is full except one spot, and another driver is heading for it. Cars are circling and shoppers are walking.",
+  "spawn": { "x": 0, "y": 0, "z": -30, "heading": 0 },
+  "ground": { "type": "grass", "size": 800 },
+  "model": null,
+  "props": [
+    {
+      "type": "parking_lot",
+      "x": 0,
+      "z": 0,
+      "pairs": 3,
+      "spotsPerRow": 18,
+      "freeSpot": [2, 1, 13],
+      "rival": true,
+      "rivalSpeedKmh": 17,
+      "cruisers": 3,
+      "shoppers": 6,
+      "carts": 8,
+      "seed": 7
+    }
+  ],
+  "cars": [],
+  "goal": { "type": "park", "text": "Grab the last open spot (green arrow) before the purple SUV does. Stop inside the lines, lined up. Tip: you can fly over the rows." },
+  "checkpoints": []
+}

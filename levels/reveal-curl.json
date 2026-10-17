@@ -1,0 +1,64 @@
+{
+  "name": "Reveal Curl",
+  "description": "The reveal stunt: drive up the curl with the fans on, hang upside down at the top, then barrel roll and land.",
+  "spawn": {
+    "x": 0,
+    "y": 0,
+    "z": -110,
+    "heading": 0
+  },
+  "ground": {
+    "type": "flat",
+    "size": 1000
+  },
+  "model": null,
+  "props": [
+    {
+      "type": "paint",
+      "x": 0,
+      "z": -45,
+      "w": 14,
+      "d": 130,
+      "color": "#2b2e33"
+    },
+    {
+      "type": "curl",
+      "x": 0,
+      "z": 20,
+      "radius": 10,
+      "width": 9,
+      "degrees": 180
+    },
+    {
+      "type": "cone",
+      "x": -6,
+      "z": -80
+    },
+    {
+      "type": "cone",
+      "x": 6,
+      "z": -80
+    },
+    {
+      "type": "cone",
+      "x": -6,
+      "z": -60
+    },
+    {
+      "type": "cone",
+      "x": 6,
+      "z": -60
+    }
+  ],
+  "cars": [],
+  "goal": {
+    "type": "reach",
+    "x": 0,
+    "z": -35,
+    "radius": 18,
+    "after": "barrel_roll",
+    "text": "Fans ON, drive up the curl, ROLL off the top, land in the green zone"
+  },
+  "checkpoints": [],
+  "decor": "testsite"
+}

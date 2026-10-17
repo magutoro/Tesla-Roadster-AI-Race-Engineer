@@ -1,0 +1,118 @@
+{
+  "name": "Reveal Jump",
+  "description": "The reveal's second stunt: launch off the ramp and clear the whole lineup (a small robotaxi, pickup, semi, SUV and sedan). Hold LIFT for extra height, tap ROLL for style.",
+  "spawn": {
+    "x": 0,
+    "y": 0,
+    "z": -120,
+    "heading": 0
+  },
+  "ground": {
+    "type": "flat",
+    "size": 1000
+  },
+  "model": null,
+  "props": [
+    {
+      "type": "paint",
+      "x": 0,
+      "z": -55,
+      "w": 14,
+      "d": 146,
+      "color": "#2b2e33"
+    },
+    {
+      "type": "ramp",
+      "x": 0,
+      "z": 30,
+      "width": 10,
+      "length": 24,
+      "angle": 16
+    },
+    {
+      "type": "ramp",
+      "x": 0,
+      "z": 112,
+      "width": 14,
+      "length": 30,
+      "angle": 10,
+      "heading": 180
+    },
+    {
+      "type": "cone",
+      "x": -6,
+      "z": -60
+    },
+    {
+      "type": "cone",
+      "x": 6,
+      "z": -60
+    },
+    {
+      "type": "cone",
+      "x": -6,
+      "z": -20
+    },
+    {
+      "type": "cone",
+      "x": 6,
+      "z": -20
+    },
+    {
+      "type": "cone",
+      "x": -6,
+      "z": 10
+    },
+    {
+      "type": "cone",
+      "x": 6,
+      "z": 10
+    }
+  ],
+  "cars": [
+    {
+      "x": 0,
+      "z": 50,
+      "heading": 90,
+      "behavior": "parked",
+      "kind": "compact"
+    },
+    {
+      "x": 0,
+      "z": 55.5,
+      "heading": 90,
+      "behavior": "parked",
+      "kind": "pickup"
+    },
+    {
+      "x": 0,
+      "z": 62,
+      "heading": 90,
+      "behavior": "parked",
+      "kind": "semi"
+    },
+    {
+      "x": 0,
+      "z": 68.5,
+      "heading": 90,
+      "behavior": "parked",
+      "kind": "suv"
+    },
+    {
+      "x": 0,
+      "z": 74,
+      "heading": 90,
+      "behavior": "parked",
+      "kind": "sedan"
+    }
+  ],
+  "goal": {
+    "type": "reach",
+    "x": 0,
+    "z": 175,
+    "radius": 8,
+    "text": "Clear the whole lineup and land in the green zone"
+  },
+  "checkpoints": [],
+  "decor": "testsite"
+}
